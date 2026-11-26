@@ -1,0 +1,11 @@
+.*
+!.gitignore
+!.python-version
+__pycache__/
+*.csv
+*.parquet
+*.duckdb
+init.sql
+target/
+dbt_packages/
+logs/
