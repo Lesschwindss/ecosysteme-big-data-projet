@@ -1,0 +1,11 @@
+dbt_project:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: bigdata_5g.duckdb
+      threads: 4
+      extensions:
+        - httpfs
+      settings:
+        TimeZone: UTC

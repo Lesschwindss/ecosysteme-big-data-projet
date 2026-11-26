@@ -1,0 +1,9 @@
+sources:
+  - name: silver
+    description: Données 5G nettoyées produites par PySpark sur S3.
+    config:
+      meta:
+        external_location: "read_parquet('s3://{{ env_var('LAB_BUCKET_NAME') }}/silver/{name}.parquet/*.parquet')"
+    tables:
+      - name: emetteurs_5g
+        description: Emetteurs 5G valides pour les départements 075 et 091 (6 691 lignes).
