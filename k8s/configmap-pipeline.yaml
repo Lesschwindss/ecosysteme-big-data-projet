@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pipeline-5g-config
+data:
+  LAB_BUCKET_NAME: "user-l-schwindenhammer-ece"
+  S3_ENDPOINT: "s3.seaweedfs.adm.adaltas.cloud"
+  SILVER_PREFIX: "silver/emetteurs_5g.parquet/*.parquet"
+  GOLD_PREFIX: "gold"

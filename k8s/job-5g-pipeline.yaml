@@ -1,0 +1,62 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: pipeline-5g-gold
+spec:
+  backoffLimit: 1
+  ttlSecondsAfterFinished: 3600
+  template:
+    spec:
+      restartPolicy: Never
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 100
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: duckdb-gold-runner
+          image: inseefrlab/onyxia-vscode-pyspark:py3.14.7-spark4.3.0
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+          command: ["sh", "-c"]
+          args:
+            - |
+              set -e
+              duckdb -c "
+              SET home_directory='/tmp';
+              INSTALL httpfs;
+              LOAD httpfs;
+              CREATE SECRET s3_k8s (
+                  TYPE s3,
+                  KEY_ID '$AWS_ACCESS_KEY_ID',
+                  SECRET '$AWS_SECRET_ACCESS_KEY',
+                  SESSION_TOKEN '$AWS_SESSION_TOKEN',
+                  ENDPOINT '$S3_ENDPOINT',
+                  URL_STYLE 'path'
+              );
+              COPY (
+                  SELECT sta_nm_dpt AS departement, adm_lb_nom AS operateur,
+                         count(*) AS total_emetteurs,
+                         sum(CASE WHEN statut = 'Techniquement opérationnel' THEN 1 ELSE 0 END) AS actifs
+                  FROM read_parquet('s3://$LAB_BUCKET_NAME/$SILVER_PREFIX')
+                  GROUP BY ALL
+                  ORDER BY departement, actifs DESC
+              ) TO 's3://$LAB_BUCKET_NAME/$GOLD_PREFIX/k8s_summary_5g.parquet' (FORMAT parquet);
+              SELECT * FROM read_parquet('s3://$LAB_BUCKET_NAME/$GOLD_PREFIX/k8s_summary_5g.parquet');
+              "
+          envFrom:
+            - configMapRef:
+                name: pipeline-5g-config
+            - secretRef:
+                name: s3-credentials-5g
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
