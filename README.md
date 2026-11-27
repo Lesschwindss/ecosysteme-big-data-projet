@@ -1,8 +1,8 @@
 # Déploiement 5G en Île-de-France (Paris 75 & Essonne 91)
 
 ## Authors
-- NOM1 Prenom1
-- NOM2 Prenom2
+- lucas schwindenhammer
+6 aRTHUR bROUCHON
 
 ## Prerequisites
 - Onyxia service `vscode-pyspark` (4 CPU, 4 GiB RAM) with S3 credentials (`AWS_S3_ENDPOINT`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_SESSION_TOKEN`) and `KUBERNETES_NAMESPACE` set.
